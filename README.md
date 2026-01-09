@@ -28,7 +28,7 @@ git clone https://github.com/yourusername/signalforge.git
 cd signalforge
 Create a virtual environment (optional but recommended)
 
-python -m venv venv
+-m venv venv
 # On Windows:
 venv\Scripts\activate
 
@@ -50,11 +50,7 @@ Date,Price,Open,High,Low,Vol,Change %,News
 
 # After training, models are saved automatically
 # Next time, they'll load instantly
-python app.py
-3. Access the Web Interface
-Start the server:
 
-python app.py
 Open your browser to:
 
 http://127.0.0.1:5000
