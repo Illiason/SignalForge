@@ -45,11 +45,11 @@ Date,Price,Open,High,Low,Vol,Change %,News
  
 🎯 Usage
 1. Training the Model
-bash
+
 # The model will auto-train on first run if no pre-trained model exists
 python app.py
 2. Using Pre-trained Models
-bash
+
 # After training, models are saved automatically
 # Next time, they'll load instantly
 python app.py
