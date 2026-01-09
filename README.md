@@ -7,7 +7,7 @@
 
 ⚡ GPU Accelerated: Uses PyTorch with CUDA support for lightning-fast predictions
 
-🌐 Modern Web Interface: Clean, dark-themed UI with real-time visualizations
+🌐 Modern Web Interface: Clean, dark-themed UI with real time visualizations
 
 📊 Interactive Charts: Doughnut charts and confidence indicators for easy interpretation
 
