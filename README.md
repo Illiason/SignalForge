@@ -47,8 +47,6 @@ Date,Price,Open,High,Low,Vol,Change %,News
 1. Training the Model
 
 # The model will auto-train on first run if no pre-trained model exists
-python app.py
-2. Using Pre-trained Models
 
 # After training, models are saved automatically
 # Next time, they'll load instantly
