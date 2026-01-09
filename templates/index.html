@@ -1,0 +1,847 @@
+<!--Just in case, I know that I should have HTML, CSS and JavaScript in different files 
+but on option, if you have a file less then 1000 lines it is fine  -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SignalForge - Crypto News Analyzer</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-bg: #0a0a0a;
+            --secondary-bg: #121212;
+            --card-bg: #1a1a1a;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-yellow: #f59e0b;
+            --text-primary: #ffffff;
+            --text-secondary: #a3a3a3;
+            --border-color: #2a2a2a;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        
+        .header {
+            grid-column: 1 / -1;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 24px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-blue), #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            padding: 24px;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        
+        .card:hover {
+            border-color: #3a3a3a;
+        }
+        
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card-title i {
+            color: var(--accent-blue);
+        }
+        
+        .section-title {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        
+        /* News Input Section */
+        .news-input-container {
+            grid-column: 1;
+            grid-row: 2;
+        }
+        
+        .news-input {
+            width: 100%;
+            height: 200px;
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            resize: vertical;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        
+        .news-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+        
+        .news-input::placeholder {
+            color: var(--text-secondary);
+        }
+        
+        .input-hint {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .input-hint i {
+            color: var(--accent-yellow);
+        }
+        
+        /* Analyze Button */
+        .analyze-btn {
+            background: linear-gradient(135deg, var(--accent-blue), #6366f1);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 16px 32px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            width: 100%;
+        }
+        
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+        }
+        
+        .analyze-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* Recent Analysis Section */
+        .recent-analysis-container {
+            grid-column: 1;
+            grid-row: 3;
+        }
+        
+        .recent-analysis-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .recent-item {
+            background-color: var(--secondary-bg);
+            border-radius: 12px;
+            padding: 16px;
+            border-left: 4px solid var(--accent-blue);
+            transition: background-color 0.2s;
+        }
+        
+        .recent-item:hover {
+            background-color: #222222;
+        }
+        
+        .recent-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .recent-time {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Analysis Results Section */
+        .analysis-results-container {
+            grid-column: 2;
+            grid-row: 2 / span 2;
+            display: none; /* Hidden by default, shown after analysis */
+        }
+        
+        .results-visible {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .market-reaction {
+            margin-bottom: 24px;
+        }
+        
+        .reaction-card {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #334155;
+        }
+        
+        .sentiment-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        
+        .sentiment-positive {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: var(--accent-green);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        
+        .sentiment-negative {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: var(--accent-red);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .sentiment-neutral {
+            background-color: rgba(245, 158, 11, 0.2);
+            color: var(--accent-yellow);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        
+        .price-movement {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .impact-bar {
+            height: 8px;
+            background-color: var(--secondary-bg);
+            border-radius: 4px;
+            margin: 16px 0;
+            overflow: hidden;
+        }
+        
+        .impact-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s ease-out;
+        }
+        
+        .impact-high-positive {
+            background: linear-gradient(90deg, var(--accent-green), #34d399);
+        }
+        
+        .impact-medium {
+            background: linear-gradient(90deg, var(--accent-yellow), #fbbf24);
+        }
+        
+        .impact-high-negative {
+            background: linear-gradient(90deg, var(--accent-red), #f87171);
+        }
+        
+        .confidence-timeframe {
+            display: flex;
+            gap: 24px;
+            margin-top: 20px;
+        }
+        
+        .confidence-item {
+            flex: 1;
+            text-align: center;
+            padding: 16px;
+            background-color: var(--secondary-bg);
+            border-radius: 12px;
+        }
+        
+        .confidence-value {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+        
+        .confidence-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .prediction-details {
+            margin-top: 24px;
+        }
+        
+        .probability-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+        }
+        
+        .probability-item {
+            text-align: center;
+            padding: 16px;
+            background-color: var(--secondary-bg);
+            border-radius: 12px;
+            transition: transform 0.2s;
+        }
+        
+        .probability-item:hover {
+            transform: translateY(-2px);
+        }
+        
+        .probability-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .probability-up { color: var(--accent-green); }
+        .probability-down { color: var(--accent-red); }
+        .probability-flat { color: var(--accent-yellow); }
+        
+        .probability-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Chart Container */
+        .chart-container {
+            margin-top: 24px;
+            height: 300px;
+            position: relative;
+        }
+        
+        /* Status Indicator */
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            background-color: var(--secondary-bg);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 0.875rem;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--accent-yellow);
+            animation: pulse 2s infinite;
+        }
+        
+        .status-dot.ready {
+            background-color: var(--accent-green);
+            animation: none;
+        }
+        
+        /* Error Message */
+        .error-message {
+            background-color: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .error-title {
+            color: var(--accent-red);
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                padding: 16px;
+            }
+            
+            .analysis-results-container {
+                grid-column: 1;
+                grid-row: 4;
+            }
+            
+            .confidence-timeframe {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .probability-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>SignalForge</h1>
+        </div>
+        
+        <!-- Status Indicator -->
+        <div id="statusIndicator" class="status-indicator">
+            <div class="status-dot"></div>
+            <span id="statusText">Initializing model...</span>
+        </div>
+        
+        <!-- Left Column -->
+        <div class="card news-input-container">
+            <div class="card-title">
+                <i class="fas fa-newspaper"></i>
+                News Input
+            </div>
+            
+            <div class="section-title">Passive</div>
+            <p style="color: var(--text-secondary); margin-bottom: 16px;">Paste or type news article headline</p>
+            
+            <textarea 
+                class="news-input" 
+                placeholder="Example: Bitcoin ETF Approval Expected This Week As SEC Deadline Approaches..."
+                id="newsInput"
+            ></textarea>
+            
+            <div class="input-hint">
+                <i class="fas fa-lightbulb"></i>
+                Tip: Include key details like price levels, regulations, or major announcements
+            </div>
+            
+            <button class="analyze-btn" id="analyzeBtn" disabled>
+                <i class="fas fa-chart-line"></i>
+                Analyze Sentiment
+            </button>
+        </div>
+        
+        <!-- Recent Analysis -->
+        <div class="card recent-analysis-container">
+            <div class="card-title">
+                <i class="fas fa-history"></i>
+                Recent Analysis
+            </div>
+            
+            <div class="recent-analysis-list" id="recentAnalysisList">
+                <!-- Recent items will be added here dynamically -->
+                <div class="recent-item">
+                    <div class="recent-title">Bitcoin ETF Approval</div>
+                    <div class="recent-time">2 minutes ago</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Column - Analysis Results -->
+        <div class="card analysis-results-container" id="analysisResults">
+            <div class="card-title">
+                <i class="fas fa-chart-bar"></i>
+                Analysis Results
+            </div>
+            
+            <!-- Market Reaction Prediction -->
+            <div class="market-reaction">
+                <div class="section-title">Market Reaction Prediction</div>
+                <div class="reaction-card">
+                    <div id="sentimentBadge" class="sentiment-badge sentiment-positive">Positive Sentiment</div>
+                    <div class="price-movement" id="priceMovement">Price Movement Prediction</div>
+                    <div id="impactLabel" style="color: var(--text-secondary); margin-bottom: 8px;">High Positive Impact</div>
+                    
+                    <div class="impact-bar">
+                        <div id="impactFill" class="impact-fill impact-high-positive" style="width: 85%"></div>
+                    </div>
+                    
+                    <div class="confidence-timeframe">
+                        <div class="confidence-item">
+                            <div id="confidenceValue" class="confidence-value">92%</div>
+                            <div class="confidence-label">Confidence</div>
+                        </div>
+                        <div class="confidence-item">
+                            <div class="confidence-value">24h</div>
+                            <div class="confidence-label">Time Frame</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Prediction Details -->
+            <div class="prediction-details">
+                <div class="section-title">Direction Probabilities</div>
+                <div class="probability-grid" id="probabilityGrid">
+                    <!--  populated by JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Chart -->
+            <div class="chart-container">
+                <canvas id="probabilityChart" width="400" height="300"></canvas>
+            </div>
+            
+            <!-- News Summary -->
+            <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-color);">
+                <div class="section-title">News Summary</div>
+                <p id="newsSummary" style="color: var(--text-secondary);">Analysis will appear here...</p>
+            </div>
+        </div>
+        
+        <!-- Error Message -->
+        <div id="errorMessage" class="error-message">
+            <div class="error-title">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>Error</span>
+            </div>
+            <p id="errorText">An error occurred while analyzing the news.</p>
+        </div>
+    </div>
+
+    <script>
+        let probabilityChart = null;
+        let modelReady = false;
+        let recentAnalyses = [];
+        
+        // Checks model status periodically
+        async function checkModelStatus() {
+            try {
+                const response = await fetch('/status');
+                const status = await response.json();
+                
+                if (status.model_trained) {
+                    modelReady = true;
+                    document.getElementById('analyzeBtn').disabled = false;
+                    
+                    // Update status indicator
+                    document.getElementById('statusIndicator').classList.add('ready');
+                    document.querySelector('.status-dot').classList.add('ready');
+                    document.getElementById('statusText').textContent = 'Model ready for analysis';
+                } else {
+                    setTimeout(checkModelStatus, 3000);
+                }
+            } catch (error) {
+                console.error('Error checking status:', error);
+                setTimeout(checkModelStatus, 5000);
+            }
+        }
+        
+        // Initialize status check
+        checkModelStatus();
+        
+        // Analyze button click handler
+        document.getElementById('analyzeBtn').addEventListener('click', async function() {
+            const newsInput = document.getElementById('newsInput');
+            const newsText = newsInput.value.trim();
+            
+            if (!newsText) {
+                showError('Please enter some news text');
+                return;
+            }
+            
+            if (!modelReady) {
+                showError('Model is still initializing. Please wait...');
+                return;
+            }
+            
+            // Show loading state
+            this.disabled = true;
+            const originalText = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+            
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ news: newsText })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    displayResult(result);
+                    addToRecentAnalyses(newsText);
+                } else {
+                    showError(result.error || 'Analysis failed');
+                }
+                
+            } catch (error) {
+                showError('Network error: ' + error.message);
+            } finally {
+                this.disabled = false;
+                this.innerHTML = originalText;
+            }
+        });
+        
+        function displayResult(result) {
+            // Hide error
+            document.getElementById('errorMessage').style.display = 'none';
+            
+            // Show results container
+            const resultsContainer = document.getElementById('analysisResults');
+            resultsContainer.classList.add('results-visible');
+            
+            // Update sentiment badge
+            const sentimentBadge = document.getElementById('sentimentBadge');
+            const direction = result.predicted_direction.toLowerCase();
+            
+            if (direction === 'up') {
+                sentimentBadge.className = 'sentiment-badge sentiment-positive';
+                sentimentBadge.textContent = 'Positive Sentiment';
+                document.getElementById('impactLabel').textContent = 'High Positive Impact';
+                document.getElementById('impactFill').className = 'impact-fill impact-high-positive';
+                document.getElementById('priceMovement').textContent = 'Likely Price Increase';
+            } else if (direction === 'down') {
+                sentimentBadge.className = 'sentiment-badge sentiment-negative';
+                sentimentBadge.textContent = 'Negative Sentiment';
+                document.getElementById('impactLabel').textContent = 'High Negative Impact';
+                document.getElementById('impactFill').className = 'impact-fill impact-high-negative';
+                document.getElementById('priceMovement').textContent = 'Likely Price Decrease';
+            } else {
+                sentimentBadge.className = 'sentiment-badge sentiment-neutral';
+                sentimentBadge.textContent = 'Neutral Sentiment';
+                document.getElementById('impactLabel').textContent = 'Medium Impact';
+                document.getElementById('impactFill').className = 'impact-fill impact-medium';
+                document.getElementById('priceMovement').textContent = 'Price May Remain Stable';
+            }
+            
+            // Update confidence value
+            document.getElementById('confidenceValue').textContent = result.confidence + '%';
+            
+            // Update impact bar width based on confidence
+            const impactFill = document.getElementById('impactFill');
+            impactFill.style.width = result.confidence + '%';
+            
+            // Create probability grid
+            createProbabilityGrid(result.probabilities);
+            
+            // Create probability chart
+            createProbabilityChart(result.probabilities);
+            
+            // Update news summary
+            document.getElementById('newsSummary').textContent = 
+                result.news.length > 150 ? result.news.substring(0, 150) + '...' : result.news;
+            
+            // Scroll to results on mobile
+            if (window.innerWidth <= 768) {
+                resultsContainer.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+        
+        function createProbabilityGrid(probabilities) {
+            const grid = document.getElementById('probabilityGrid');
+            grid.innerHTML = '';
+            
+            // Define order and labels
+            const categories = [
+                { key: 'UP', label: 'Increase', className: 'probability-up' },
+                { key: 'DOWN', label: 'Decrease', className: 'probability-down' },
+                { key: 'FLAT', label: 'Stable', className: 'probability-flat' }
+            ];
+            
+            categories.forEach(category => {
+                const probability = probabilities[category.key] || 0;
+                
+                const item = document.createElement('div');
+                item.className = 'probability-item';
+                item.innerHTML = `
+                    <div class="probability-value ${category.className}">${probability}%</div>
+                    <div class="probability-label">${category.label}</div>
+                `;
+                grid.appendChild(item);
+            });
+        }
+        
+        function createProbabilityChart(probabilities) {
+            const ctx = document.getElementById('probabilityChart').getContext('2d');
+            
+            // Destroy existing chart
+            if (probabilityChart) {
+                probabilityChart.destroy();
+            }
+            
+            const labels = ['Increase', 'Decrease', 'Stable'];
+            const data = [
+                probabilities.UP || 0,
+                probabilities.DOWN || 0,
+                probabilities.FLAT || 0
+            ];
+            
+            const backgroundColors = ['#10b981', '#ef4444', '#f59e0b'];
+            const borderColors = ['#0da271', '#dc2626', '#d97706'];
+            
+            probabilityChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: backgroundColors,
+                        borderColor: borderColors,
+                        borderWidth: 2,
+                        borderRadius: 6,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#a3a3a3',
+                                padding: 20,
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + context.parsed + '%';
+                                }
+                            },
+                            backgroundColor: 'rg(26, 26, 26, 0.9)',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff'
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+        
+        function addToRecentAnalyses(newsText) {
+            // Add to recent analyses array (limit to 5)
+            recentAnalyses.unshift({
+                title: newsText.length > 50 ? newsText.substring(0, 50) + '...' : newsText,
+                fullText: newsText,
+                time: 'Just now'
+            });
+            
+            if (recentAnalyses.length > 5) {
+                recentAnalyses.pop();
+            }
+            
+            // Update UI
+            updateRecentAnalysesList();
+        }
+        
+        function updateRecentAnalysesList() {
+            const list = document.getElementById('recentAnalysisList');
+            list.innerHTML = '';
+            
+            recentAnalyses.forEach((analysis, index) => {
+                const item = document.createElement('div');
+                item.className = 'recent-item';
+                item.style.cursor = 'pointer';
+                item.addEventListener('click', () => {
+                    document.getElementById('newsInput').value = analysis.fullText;
+                });
+                
+                item.innerHTML = `
+                    <div class="recent-title">${analysis.title}</div>
+                    <div class="recent-time">${analysis.time}</div>
+                `;
+                
+                list.appendChild(item);
+            });
+            
+            // Adds default item if list is empty
+            if (recentAnalyses.length === 0) {
+                const defaultItem = document.createElement('div');
+                defaultItem.className = 'recent-item';
+                defaultItem.innerHTML = `
+                    <div class="recent-title">Bitcoin ETF Approval</div>
+                    <div class="recent-time">2 minutes ago</div>
+                `;
+                list.appendChild(defaultItem);
+            }
+        }
+        
+        function showError(message) {
+            document.getElementById('errorText').textContent = message;
+            document.getElementById('errorMessage').style.display = 'block';
+            
+            // Scrolls to error on mobile
+            if (window.innerWidth <= 768) {
+                document.getElementById('errorMessage').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+        
+        // Initializes with a sample analysis
+        window.addEventListener('load', () => {
+            // Adds a sample to recent analyses
+            recentAnalyses.push({
+                title: 'Bitcoin ETF Approval',
+                fullText: 'Bitcoin ETF Approval Expected This Week As SEC Deadline Approaches',
+                time: '2 minutes ago'
+            });
+            
+            updateRecentAnalysesList();
+            
+            // Adds sample text to input
+            document.getElementById('newsInput').value = 
+                'Bitcoin ETF Approval Expected This Week As SEC Deadline Approaches';
+        });
+    </script>
+</body>
+</html>
