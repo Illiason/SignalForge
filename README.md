@@ -1,4 +1,3 @@
-✨ Features
 📰 News Sentiment Analysis: Real-time processing of cryptocurrency news headlines
 
 📈 Price Direction Prediction: Classifies Bitcoin price movements (UP/DOWN/FLAT) with confidence scores
