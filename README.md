@@ -16,8 +16,6 @@
 Prerequisites
 Python 3.11+
 
-NVIDIA GPU (optional, but recommended for faster training)
-
 8GB+ RAM
 
 Installation
