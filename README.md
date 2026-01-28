@@ -93,8 +93,6 @@ Training Accuracy: 86.63%
 
 Training Time: ~2-5 minutes on GPU
 
-Prediction Time: ~50-100ms per news item
-
 🎨 Web Interface Features
 Main Dashboard
 News Input Panel: Paste or type cryptocurrency news
