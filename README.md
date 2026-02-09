@@ -4,13 +4,8 @@
 
 🎯 Percentage Change Estimates: Provides estimated percentage change ranges based on confidence levels
 
-⚡ GPU Accelerated: Uses PyTorch with CUDA support for lightning-fast predictions
-
-🌐 Modern Web Interface: Clean, dark-themed UI with real time visualizations
-
 📊 Interactive Charts: Doughnut charts and confidence indicators for easy interpretation
 
-🔍 Historical Analysis: Keeps track of recent predictions for reference
 
 🚀 Quick Start
 Prerequisites
