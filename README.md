@@ -11,8 +11,6 @@
 Prerequisites
 Python 3.11+
 
-8GB+ RAM
-
 Installation
 Clone the repository
 
