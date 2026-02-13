@@ -29,7 +29,6 @@ Place your crypto_dataset.csv in the project root
 
 Or use the example dataset structure:
 
-text
 Date,Price,Open,High,Low,Vol,Change %,News
 07/01/2025,105694.3,107176.4,107532.3,105289.4,40280.0,-1.38,Bitcoin news headline...
  
