@@ -83,7 +83,7 @@ Validation Accuracy: 74.13%
 
 Training Accuracy: 86.63%
 
-Training Time: ~2-5 minutes on GPU
+Training Time: approx 2-5 minutes on GPU
 
 🎨 Web Interface Features
 Main Dashboard
