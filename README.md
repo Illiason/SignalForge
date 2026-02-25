@@ -45,7 +45,7 @@ Open your browser to:
 http://127.0.0.1:5000
 Enter cryptocurrency news and click "Analyze Sentiment"
 
-Example News Input
+Example News Input:
 
 Bitcoin ETF Approval Expected This Week As SEC Deadline Approaches
 
