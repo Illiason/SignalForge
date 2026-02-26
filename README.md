@@ -6,7 +6,6 @@
 
 📊 Interactive Charts: Doughnut charts and confidence indicators for easy interpretation
 
-
 🚀 Quick Start
 Prerequisites
 Python 3.11+
