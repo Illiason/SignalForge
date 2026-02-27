@@ -112,7 +112,7 @@ Color-coded Results: Green for UP, Red for DOWN, Yellow for FLAT
 📊 Dataset Format
 The model expects a CSV with these columns (example):
 
-csv
+File type is csv
 Date,Price,Open,High,Low,Vol,Change %,News
 07/01/2025,105694.3,107176.4,107532.3,105289.4,40280.0,-1.38,Bitcoin pulled back after record close...
 06/30/2025,107171.1,108362.3,108777.0,106743.1,37460.0,-1.1,Highest monthly close ever...
