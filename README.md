@@ -17,7 +17,7 @@ git clone https://github.com/yourusername/signalforge.git
 cd signalforge
 Create a virtual environment (optional but recommended)
 
--m venv venv
+python -m venv venv
 # On Windows:
 venv\Scripts\activate
 
