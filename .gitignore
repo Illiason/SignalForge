@@ -1,1 +1,3 @@
-
+__pycache__/
+model_weights.pth
+test.ipynb
