@@ -119,9 +119,9 @@ class BitcoinPricePredictor:
                 break
         
         if news_column is None:
-            # Trys to find any text column
+            # Tries to find any text column
             for col in df.columns:
-                if df[col].dtype == 'object' and len(df[col].iloc[0]) > 20:
+                if df[col].dtype == 'object' and isinstance(df[col].iloc[0], str) and len(df[col].iloc[0]) > 20:
                     news_column = col
                     break
         
