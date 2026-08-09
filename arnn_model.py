@@ -260,7 +260,33 @@ class BitcoinPricePredictor:
             print(f"Training completed. Best validation accuracy: {best_val_acc:.2f}%")
         else:
             print("Training completed but no model was saved.")
-    
+
+    def load_saved_model(self, weights_path='model_weights.pth', encoder_path='label_encoder.pkl'):
+        """Load a previously trained model, its label encoder and tokenizer
+        without retraining. Returns True on success, or False if either
+        artifact is missing so the caller can fall back to training."""
+        if not (os.path.exists(weights_path) and os.path.exists(encoder_path)):
+            return False
+
+        # Tokenizer must match the one used during training
+        from transformers import AutoTokenizer
+        self.tokenizer = AutoTokenizer.from_pretrained('distilbert-base-uncased')
+
+        # Restore the label encoder first so we know how many classes to build
+        with open(encoder_path, 'rb') as f:
+            self.label_encoder = pickle.load(f)
+
+        self.model = SimpleNewsModel(num_classes=len(self.label_encoder.classes_))
+        # map_location keeps this working when the weights were saved on a
+        # different device (e.g. trained on GPU, served on CPU)
+        state_dict = torch.load(weights_path, map_location=self.device, weights_only=False)
+        self.model.load_state_dict(state_dict)
+        self.model.to(self.device)
+        self.model.eval()
+
+        print(f"Loaded saved model ({len(self.label_encoder.classes_)} classes) from '{weights_path}'.")
+        return True
+
     def predict(self, news_text):
         if self.model is None or self.tokenizer is None or self.label_encoder is None:
             # If model not trained, using fallback
