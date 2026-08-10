@@ -22,11 +22,16 @@ def initialize_model():
             df = pd.read_csv('crypto_dataset.csv')
             print("Dataset loaded successfully!")
             print(f"Dataset shape: {df.shape}")
-            
-            # Trains the model with simpler configuration
-            predictor.train(df, epochs=10, batch_size=2, learning_rate=2e-5)
-            model_trained = True
-            print("Model trained successfully!")
+
+            # Try loading saved model first; only retrain if weights don't exist
+            if predictor.load_saved_model():
+                model_trained = True
+                print("Model loaded successfully!")
+            else:
+                print("No saved model found. Training a new model...")
+                predictor.train(df, epochs=10, batch_size=2, learning_rate=2e-5)
+                model_trained = True
+                print("Model trained successfully!")
         else:
             print("Dataset file not found! Using rule-based predictions.")
             # Marks as trained to use rule-based predictions
