@@ -23,12 +23,18 @@ def initialize_model():
             print("Dataset loaded successfully!")
             print(f"Dataset shape: {df.shape}")
 
-            # Try loading saved model first; only retrain if weights don't exist
-            if predictor.load_saved_model():
+            # Check if forced retrain is requested via env var
+            retrain = os.getenv('RETRAIN', '').lower() in ('1', 'true', 'yes')
+
+            # Try loading saved model first (unless RETRAIN is set); only retrain if weights don't exist
+            if not retrain and predictor.load_saved_model():
                 model_trained = True
                 print("Model loaded successfully!")
             else:
-                print("No saved model found. Training a new model...")
+                if retrain:
+                    print("RETRAIN=1 detected. Training a new model...")
+                else:
+                    print("No saved model found. Training a new model...")
                 predictor.train(df, epochs=10, batch_size=2, learning_rate=2e-5)
                 model_trained = True
                 print("Model trained successfully!")
