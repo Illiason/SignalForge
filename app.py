@@ -62,9 +62,30 @@ def predict():
             return jsonify({
                 'success': False,
                 'error': 'Model not ready yet. Please wait...'
-            })
-        
+            }), 503
+
+        # Validate input
+        if not request.json or 'news' not in request.json:
+            return jsonify({
+                'success': False,
+                'error': 'Missing required field: news'
+            }), 400
+
         news_text = request.json['news']
+        if not isinstance(news_text, str) or not news_text.strip():
+            return jsonify({
+                'success': False,
+                'error': 'News text must be a non-empty string'
+            }), 400
+
+        # Cap input length to prevent abuse
+        MAX_NEWS_LENGTH = 5000
+        if len(news_text) > MAX_NEWS_LENGTH:
+            return jsonify({
+                'success': False,
+                'error': f'News text exceeds maximum length of {MAX_NEWS_LENGTH} characters'
+            }), 400
+
         result = predictor.predict_with_explanation(news_text)
         
         response = {
@@ -76,14 +97,13 @@ def predict():
             'reasoning': result['reasoning'],
             'news': news_text
         }
-        
+        return jsonify(response), 200
+
     except Exception as e:
-        response = {
+        return jsonify({
             'success': False,
             'error': str(e)
-        }
-    
-    return jsonify(response)
+        }), 500
 
 @app.route('/status')
 def status():
