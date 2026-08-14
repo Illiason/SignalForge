@@ -1,3 +1,6 @@
 __pycache__/
 model_weights.pth
 test.ipynb
+.pytest_cache/
+.coverage
+htmlcov/
