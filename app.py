@@ -65,13 +65,14 @@ def predict():
             }), 503
 
         # Validate input
-        if not request.json or 'news' not in request.json:
+        data = request.get_json(silent=True)
+        if not data or 'news' not in data:
             return jsonify({
                 'success': False,
                 'error': 'Missing required field: news'
             }), 400
 
-        news_text = request.json['news']
+        news_text = data['news']
         if not isinstance(news_text, str) or not news_text.strip():
             return jsonify({
                 'success': False,
