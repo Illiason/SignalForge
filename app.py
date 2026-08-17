@@ -3,13 +3,21 @@ import torch
 import pandas as pd
 from arnn_model import BitcoinPricePredictor
 import os
+import logging
 import warnings
 warnings.filterwarnings('ignore')
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-print(f"Using device: {device}")
+logger.info(f"Using device: {device}")
 
 # Initializes predictor
 predictor = BitcoinPricePredictor(device=device)
@@ -20,8 +28,8 @@ def initialize_model():
     try:
         if os.path.exists('crypto_dataset.csv'):
             df = pd.read_csv('crypto_dataset.csv')
-            print("Dataset loaded successfully!")
-            print(f"Dataset shape: {df.shape}")
+            logger.info("Dataset loaded successfully!")
+            logger.info(f"Dataset shape: {df.shape}")
 
             # Check if forced retrain is requested via env var
             retrain = os.getenv('RETRAIN', '').lower() in ('1', 'true', 'yes')
@@ -29,26 +37,26 @@ def initialize_model():
             # Try loading saved model first (unless RETRAIN is set); only retrain if weights don't exist
             if not retrain and predictor.load_saved_model():
                 model_trained = True
-                print("Model loaded successfully!")
+                logger.info("Model loaded successfully!")
             else:
                 if retrain:
-                    print("RETRAIN=1 detected. Training a new model...")
+                    logger.info("RETRAIN=1 detected. Training a new model...")
                 else:
-                    print("No saved model found. Training a new model...")
+                    logger.info("No saved model found. Training a new model...")
                 predictor.train(df, epochs=10, batch_size=2, learning_rate=2e-5)
                 model_trained = True
-                print("Model trained successfully!")
+                logger.info("Model trained successfully!")
         else:
-            print("Dataset file not found! Using rule-based predictions.")
+            logger.warning("Dataset file not found! Using rule-based predictions.")
             # Marks as trained to use rule-based predictions
             model_trained = True
     except Exception as e:
-        print(f"Error during model training: {e}")
-        print("Falling back to rule-based predictions.")
+        logger.error(f"Error during model training: {e}")
+        logger.warning("Falling back to rule-based predictions.")
         model_trained = True  # allows predictions with rule-based method
 
 # Initializes model when app starts
-print("Initializing model...")
+logger.info("Initializing model...")
 initialize_model()
 
 @app.route('/')

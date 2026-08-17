@@ -7,6 +7,9 @@ from sklearn.preprocessing import LabelEncoder
 import pandas as pd
 import pickle
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 class NewsPriceDataset(Dataset):
     def __init__(self, texts, price_directions, tokenizer, max_length=128):
@@ -78,7 +81,7 @@ class BitcoinPricePredictor:
         self.model = None
         self.tokenizer = None
         self.label_encoder = None
-        print(f"BitcoinPricePredictor initialized on: {self.device}")
+        logger.debug(f"BitcoinPricePredictor initialized on: {self.device}")
         
     def clean_data(self, df):
         # Cleans numerical columns
@@ -134,10 +137,10 @@ class BitcoinPricePredictor:
         # Encode labels
         self.label_encoder = LabelEncoder()
         encoded_labels = self.label_encoder.fit_transform(labels)
-        
-        print(f"Price direction distribution:")
+
+        logger.info(f"Price direction distribution:")
         direction_counts = pd.Series(labels).value_counts()
-        print(direction_counts)
+        logger.info(f"\n{direction_counts}")
         
         return texts, encoded_labels
     
@@ -153,8 +156,8 @@ class BitcoinPricePredictor:
             texts, labels, test_size=0.2, random_state=42, stratify=labels
         )
         
-        print(f"Training samples: {len(train_texts)}")
-        print(f"Validation samples: {len(val_texts)}")
+        logger.info(f"Training samples: {len(train_texts)}")
+        logger.info(f"Validation samples: {len(val_texts)}")
         
         # Creates datasets
         train_dataset = NewsPriceDataset(train_texts, train_labels, self.tokenizer)
@@ -176,8 +179,8 @@ class BitcoinPricePredictor:
         patience = 5
         patience_counter = 0
         
-        print("Starting training...")
-        
+        logger.info("Starting training...")
+
         for epoch in range(epochs):
             # Training
             self.model.train()
@@ -227,9 +230,7 @@ class BitcoinPricePredictor:
             train_acc = 100 * train_correct / train_total
             val_acc = 100 * val_correct / val_total
             
-            print(f'Epoch {epoch+1}/{epochs}:')
-            print(f'  Train Loss: {total_loss/len(train_loader):.4f}, Train Acc: {train_acc:.2f}%')
-            print(f'  Val Loss: {val_loss/len(val_loader):.4f}, Val Acc: {val_acc:.2f}%')
+            logger.info(f'Epoch {epoch+1}/{epochs}: Train Loss: {total_loss/len(train_loader):.4f}, Train Acc: {train_acc:.2f}%, Val Loss: {val_loss/len(val_loader):.4f}, Val Acc: {val_acc:.2f}%')
             
             # Early stopping
             if val_acc > best_val_acc:
@@ -239,13 +240,13 @@ class BitcoinPricePredictor:
                 torch.save(self.model.state_dict(), 'model_weights.pth')
                 with open('label_encoder.pkl', 'wb') as f:
                     pickle.dump(self.label_encoder, f)
-                print(f'  New best model saved with validation accuracy: {val_acc:.2f}%')
+                logger.info(f'New best model saved with validation accuracy: {val_acc:.2f}%')
             else:
                 patience_counter += 1
-                print(f'  No improvement for {patience_counter} epochs')
-            
+                logger.info(f'No improvement for {patience_counter} epochs')
+
             if patience_counter >= patience:
-                print(f"Early stopping at epoch {epoch+1}")
+                logger.info(f"Early stopping at epoch {epoch+1}")
                 break
         
         # Load best model
@@ -257,9 +258,9 @@ class BitcoinPricePredictor:
             with open('label_encoder.pkl', 'rb') as f:
                 self.label_encoder = pickle.load(f)
                 
-            print(f"Training completed. Best validation accuracy: {best_val_acc:.2f}%")
+            logger.info(f"Training completed. Best validation accuracy: {best_val_acc:.2f}%")
         else:
-            print("Training completed but no model was saved.")
+            logger.warning("Training completed but no model was saved.")
 
     def load_saved_model(self, weights_path='model_weights.pth', encoder_path='label_encoder.pkl'):
         """Load a previously trained model, its label encoder and tokenizer
@@ -284,7 +285,7 @@ class BitcoinPricePredictor:
         self.model.to(self.device)
         self.model.eval()
 
-        print(f"Loaded saved model ({len(self.label_encoder.classes_)} classes) from '{weights_path}'.")
+        logger.info(f"Loaded saved model ({len(self.label_encoder.classes_)} classes) from '{weights_path}'.")
         return True
 
     def predict(self, news_text):
