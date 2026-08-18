@@ -5,7 +5,11 @@ from arnn_model import BitcoinPricePredictor
 import os
 import logging
 import warnings
-warnings.filterwarnings('ignore')
+
+# Suppress only known noisy warnings from dependencies (transformers, torch)
+# while allowing legitimate warnings through
+warnings.filterwarnings('ignore', category=FutureWarning, module='transformers')
+warnings.filterwarnings('ignore', category=DeprecationWarning, module='torch')
 
 # Configure logging
 logging.basicConfig(
