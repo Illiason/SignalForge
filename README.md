@@ -32,21 +32,41 @@ Date,Price,Open,High,Low,Vol,Change %,News
 07/01/2025,105694.3,107176.4,107532.3,105289.4,40280.0,-1.38,Bitcoin news headline...
  
 🎯 Usage
-1. Training the Model
 
-# The model will auto-train on first run if no pre-trained model exists
+1. **First Run** — Model Training & Saving
+   - On first startup, the app auto-trains if no saved weights exist (2–5 min)
+   - Training checkpoints are saved to `model_weights.pth` and `label_encoder.pkl`
+   - Next run loads these instantly (~1 sec startup)
 
-# After training, models are saved automatically
-# Next time, they'll load instantly
+2. **Startup** — Model Loading (Fast Path)
+   ```bash
+   python app.py  # Loads saved model in ~1 second
+   ```
 
-Open your browser to:
+3. **Force Retraining**
+   ```bash
+   RETRAIN=1 python app.py  # Ignores saved weights, trains fresh
+   ```
+   Or set `RETRAIN=true` or `RETRAIN=yes` — useful for hyperparameter tuning or new data.
 
-http://127.0.0.1:5000
-Enter cryptocurrency news and click "Analyze Sentiment"
+4. **Using the App**
+   - Open browser: http://127.0.0.1:5000
+   - Enter cryptocurrency news
+   - Click "Analyze Sentiment" to get direction prediction (UP/DOWN/FLAT)
 
-Example News Input:
+   Example News Input:
+   > Bitcoin ETF Approval Expected This Week As SEC Deadline Approaches
 
-Bitcoin ETF Approval Expected This Week As SEC Deadline Approaches
+5. **Configuration** (Optional)
+   - Copy `.env.example` to `.env` and edit for custom settings
+   - `RETRAIN=1` — force retrain on startup
+   - `FLASK_DEBUG=1` — enable debug mode (dev only)
+   - `FLASK_HOST` / `FLASK_PORT` — customize server address
+
+6. **Run Tests**
+   ```bash
+   pytest test_arnn_model.py test_app.py -v  # 27 tests covering model & API
+   ```
 
 🏗️ Project Structure
 
