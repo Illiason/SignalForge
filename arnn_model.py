@@ -84,7 +84,18 @@ class BitcoinPricePredictor:
         logger.debug(f"BitcoinPricePredictor initialized on: {self.device}")
         
     def clean_data(self, df):
-        # Cleans numerical columns
+        """Clean numerical columns by removing formatting characters.
+
+        Converts Price and Change % columns from formatted strings to floats.
+        - Removes commas from price strings (e.g., "1,234.56" → 1234.56)
+        - Removes % signs from change strings (e.g., "-1.38%" → -1.38)
+
+        Args:
+            df (pd.DataFrame): DataFrame with raw price data
+
+        Returns:
+            pd.DataFrame: DataFrame with cleaned numerical columns
+        """
         if 'Price' in df.columns:
             df['Price'] = df['Price'].astype(str).str.replace(',', '').astype(float)
         if 'Change %' in df.columns:
@@ -92,6 +103,19 @@ class BitcoinPricePredictor:
         return df
     
     def create_price_direction_categories(self, df):
+        """Categorize price changes into directional labels.
+
+        Converts numerical percentage changes into discrete directions:
+        - UP: change > 0.5% (bullish)
+        - DOWN: change < -0.5% (bearish)
+        - FLAT: change in [-0.5%, 0.5%] (neutral/consolidation)
+
+        Args:
+            df (pd.DataFrame): DataFrame with 'Change %' column
+
+        Returns:
+            pd.DataFrame: DataFrame with new 'price_direction' column
+        """
         # More balanced categorization for small dataset
         def categorize_direction(change):
             if change > 0.5:  # More than 0.5% increase
@@ -110,6 +134,17 @@ class BitcoinPricePredictor:
         return df
     
     def prepare_data(self, df):
+        """Prepare and encode data for training.
+
+        Cleans data, identifies news column, categorizes price directions,
+        and encodes labels for the neural network.
+
+        Args:
+            df (pd.DataFrame): Raw dataset with news and price columns
+
+        Returns:
+            tuple: (texts, encoded_labels) ready for model training
+        """
         df = self.clean_data(df)
         df = self.create_price_direction_categories(df)
         
@@ -145,6 +180,20 @@ class BitcoinPricePredictor:
         return texts, encoded_labels
     
     def train(self, df, epochs=15, batch_size=2, learning_rate=2e-5):
+        """Train the DistilBERT model on news sentiment data.
+
+        Trains a transformer-based neural network with early stopping.
+        Best model (lowest validation loss) is saved to disk automatically.
+
+        Args:
+            df (pd.DataFrame): Dataset with news headlines and price changes
+            epochs (int): Maximum training epochs (default 15)
+            batch_size (int): Batch size for training (default 2)
+            learning_rate (float): AdamW optimizer learning rate (default 2e-5)
+
+        Returns:
+            None (saves model_weights.pth and label_encoder.pkl to disk)
+        """
         texts, labels = self.prepare_data(df)
         
         # Initializing tokenizer DistilBERT for speed
@@ -289,6 +338,21 @@ class BitcoinPricePredictor:
         return True
 
     def predict(self, news_text):
+        """Predict Bitcoin price direction from news sentiment.
+
+        Uses the trained neural network model if available, otherwise falls
+        back to deterministic rule-based prediction.
+
+        Args:
+            news_text (str): Cryptocurrency news headline or article excerpt
+
+        Returns:
+            dict: {
+                'predicted_direction': str ('UP', 'DOWN', 'FLAT'),
+                'probabilities': dict with confidence per class,
+                'confidence': float (55-95%)
+            }
+        """
         if self.model is None or self.tokenizer is None or self.label_encoder is None:
             # If model not trained, using fallback
             return self.rule_based_predict(news_text)
@@ -328,6 +392,21 @@ class BitcoinPricePredictor:
         }
     
     def rule_based_predict(self, news_text):
+        """Simple keyword-based prediction (fallback when model is unavailable).
+
+        Counts positive/negative keywords in the news text and predicts direction
+        based on keyword frequency. Used as fallback when no trained model exists.
+
+        Args:
+            news_text (str): Cryptocurrency news text
+
+        Returns:
+            dict: {
+                'predicted_direction': str ('UP', 'DOWN', 'FLAT'),
+                'probabilities': dict {equal distribution},
+                'confidence': float (55-85%)
+            }
+        """
         text_lower = news_text.lower()
         
         # Simple keyword based rules
@@ -356,6 +435,19 @@ class BitcoinPricePredictor:
         }
     
     def predict_with_explanation(self, news_text):
+        """Predict with human-readable explanation and reasoning.
+
+        Wraps predict() and adds natural language explanations of the
+        prediction and market reasoning for the frontend UI.
+
+        Args:
+            news_text (str): Cryptocurrency news headline or article
+
+        Returns:
+            dict: prediction dict plus:
+                'explanation': str (emoji + direction + confidence)
+                'reasoning': str (market interpretation)
+        """
         result = self.predict(news_text)
         
         # Add explanatory text based on prediction
