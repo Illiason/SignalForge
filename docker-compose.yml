@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  signalforge:
+    build: .
+    container_name: signalforge-app
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_DEBUG=0
+      - FLASK_HOST=0.0.0.0
+      - FLASK_PORT=5000
+      # Uncomment to force model retraining on startup:
+      # - RETRAIN=1
+    volumes:
+      # Mount current directory for live development
+      - .:/app
+      # Persist model weights and label encoder
+      - ./model_weights.pth:/app/model_weights.pth
+      - ./label_encoder.pkl:/app/label_encoder.pkl
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
