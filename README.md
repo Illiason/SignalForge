@@ -1,10 +1,23 @@
-📰 News Sentiment Analysis: Real-time processing of cryptocurrency news headlines
+[![Tests](https://github.com/Illiason/SignalForge/actions/workflows/tests.yml/badge.svg)](https://github.com/Illiason/SignalForge/actions/workflows/tests.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![Docker Ready](https://img.shields.io/badge/docker-ready-brightgreen.svg)](./DOCKER.md)
+[![Code style](https://img.shields.io/badge/code%20style-clean-lightgrey.svg)]()
 
-📈 Price Direction Prediction: Classifies Bitcoin price movements (UP/DOWN/FLAT) with confidence scores
+# SignalForge
 
-🎯 Percentage Change Estimates: Provides estimated percentage change ranges based on confidence levels
+AI-powered sentiment analysis for Bitcoin price prediction. Analyzes cryptocurrency news headlines to predict price movements in real-time.
 
-📊 Interactive Charts: Doughnut charts and confidence indicators for easy interpretation
+## ✨ Features
+
+- 📰 **News Sentiment Analysis** — Real-time processing of cryptocurrency news headlines
+- 📈 **Price Direction Prediction** — Classifies Bitcoin price movements (UP/DOWN/FLAT) with confidence scores
+- 🎯 **Percentage Change Estimates** — Provides estimated percentage change ranges based on confidence levels
+- 📊 **Interactive Charts** — Doughnut charts and confidence indicators for easy interpretation
+- ⚡ **Fast Model Loading** — Trained model loads in ~1 second on subsequent runs
+- 🔧 **Configurable** — Environment variables for flexible configuration
+- 🐳 **Docker Ready** — One-command deployment with Docker Compose
+- ✅ **Well-Tested** — 27 passing unit and integration tests
 
 🚀 Quick Start
 Prerequisites
