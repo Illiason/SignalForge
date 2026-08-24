@@ -8,6 +8,7 @@ import pandas as pd
 import pickle
 import os
 import logging
+from typing import Dict, Tuple, List, Any, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -83,7 +84,7 @@ class BitcoinPricePredictor:
         self.label_encoder = None
         logger.debug(f"BitcoinPricePredictor initialized on: {self.device}")
         
-    def clean_data(self, df):
+    def clean_data(self, df: pd.DataFrame) -> pd.DataFrame:
         """Clean numerical columns by removing formatting characters.
 
         Converts Price and Change % columns from formatted strings to floats.
@@ -102,7 +103,7 @@ class BitcoinPricePredictor:
             df['Change %'] = df['Change %'].astype(str).str.replace('%', '').astype(float)
         return df
     
-    def create_price_direction_categories(self, df):
+    def create_price_direction_categories(self, df: pd.DataFrame) -> pd.DataFrame:
         """Categorize price changes into directional labels.
 
         Converts numerical percentage changes into discrete directions:
@@ -133,7 +134,7 @@ class BitcoinPricePredictor:
             
         return df
     
-    def prepare_data(self, df):
+    def prepare_data(self, df: pd.DataFrame) -> Tuple[List[str], List[int]]:
         """Prepare and encode data for training.
 
         Cleans data, identifies news column, categorizes price directions,
@@ -179,7 +180,7 @@ class BitcoinPricePredictor:
         
         return texts, encoded_labels
     
-    def train(self, df, epochs=15, batch_size=2, learning_rate=2e-5):
+    def train(self, df: pd.DataFrame, epochs: int = 15, batch_size: int = 2, learning_rate: float = 2e-5) -> None:
         """Train the DistilBERT model on news sentiment data.
 
         Trains a transformer-based neural network with early stopping.
@@ -311,7 +312,7 @@ class BitcoinPricePredictor:
         else:
             logger.warning("Training completed but no model was saved.")
 
-    def load_saved_model(self, weights_path='model_weights.pth', encoder_path='label_encoder.pkl'):
+    def load_saved_model(self, weights_path: str = 'model_weights.pth', encoder_path: str = 'label_encoder.pkl') -> bool:
         """Load a previously trained model, its label encoder and tokenizer
         without retraining. Returns True on success, or False if either
         artifact is missing so the caller can fall back to training."""
@@ -337,7 +338,7 @@ class BitcoinPricePredictor:
         logger.info(f"Loaded saved model ({len(self.label_encoder.classes_)} classes) from '{weights_path}'.")
         return True
 
-    def predict(self, news_text):
+    def predict(self, news_text: str) -> Dict[str, Any]:
         """Predict Bitcoin price direction from news sentiment.
 
         Uses the trained neural network model if available, otherwise falls
@@ -391,7 +392,7 @@ class BitcoinPricePredictor:
             'confidence': max(class_probabilities.values())
         }
     
-    def rule_based_predict(self, news_text):
+    def rule_based_predict(self, news_text: str) -> Dict[str, Any]:
         """Simple keyword-based prediction (fallback when model is unavailable).
 
         Counts positive/negative keywords in the news text and predicts direction
@@ -434,7 +435,7 @@ class BitcoinPricePredictor:
             'confidence': confidence
         }
     
-    def predict_with_explanation(self, news_text):
+    def predict_with_explanation(self, news_text: str) -> Dict[str, Any]:
         """Predict with human-readable explanation and reasoning.
 
         Wraps predict() and adds natural language explanations of the

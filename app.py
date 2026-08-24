@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, jsonify
+from typing import Dict, Tuple, Any
 import torch
 import pandas as pd
 from arnn_model import BitcoinPricePredictor
@@ -27,7 +28,8 @@ logger.info(f"Using device: {device}")
 predictor = BitcoinPricePredictor(device=device)
 model_trained = False
 
-def initialize_model():
+def initialize_model() -> None:
+    """Initialize the model on app startup."""
     global model_trained
     try:
         if os.path.exists('crypto_dataset.csv'):
@@ -64,11 +66,12 @@ logger.info("Initializing model...")
 initialize_model()
 
 @app.route('/')
-def home():
+def home() -> str:
+    """Render the main UI page."""
     return render_template('index.html')
 
 @app.route('/predict', methods=['POST'])
-def predict():
+def predict() -> Tuple[Dict[str, Any], int]:
     try:
         if not model_trained:
             return jsonify({
@@ -119,7 +122,8 @@ def predict():
         }), 500
 
 @app.route('/status')
-def status():
+def status() -> Tuple[Dict[str, Any], int]:
+    """Return model readiness status."""
     return jsonify({
         'model_trained': model_trained,
         'device': str(predictor.device)
