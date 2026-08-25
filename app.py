@@ -102,10 +102,21 @@ def predict() -> Tuple[Dict[str, Any], int]:
                 'error': f'News text exceeds maximum length of {MAX_NEWS_LENGTH} characters'
             }), 400
 
+        # Extract optional coin parameter (default to Bitcoin for backward compatibility)
+        coin = data.get('coin', 'Bitcoin').strip()
+        SUPPORTED_COINS = {'Bitcoin', 'Ethereum', 'Solana', 'Cardano', 'Polkadot', 'XRP'}
+
+        if coin not in SUPPORTED_COINS:
+            return jsonify({
+                'success': False,
+                'error': f'Unsupported coin. Supported: {", ".join(sorted(SUPPORTED_COINS))}'
+            }), 400
+
         result = predictor.predict_with_explanation(news_text)
-        
+
         response = {
             'success': True,
+            'coin': coin,
             'predicted_direction': result['predicted_direction'],
             'probabilities': result['probabilities'],
             'confidence': result['confidence'],
