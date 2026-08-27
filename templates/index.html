@@ -454,9 +454,19 @@ but on option, if you have a file less then 1000 lines it is fine  -->
                 News Input
             </div>
             
-            <div class="section-title">Passive</div>
+            <div class="section-title">Select Cryptocurrency</div>
+            <select id="coinSelect" style="width: 100%; padding: 10px; margin-bottom: 16px; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-primary); font-size: 14px;">
+                <option value="Bitcoin">Bitcoin</option>
+                <option value="Ethereum">Ethereum</option>
+                <option value="Solana">Solana</option>
+                <option value="Cardano">Cardano</option>
+                <option value="Polkadot">Polkadot</option>
+                <option value="XRP">XRP</option>
+            </select>
+
+            <div class="section-title">News Input</div>
             <p style="color: var(--text-secondary); margin-bottom: 16px;">Paste or type news article headline</p>
-            
+
             <textarea 
                 class="news-input" 
                 placeholder="Example: Bitcoin ETF Approval Expected This Week As SEC Deadline Approaches..."
@@ -604,12 +614,13 @@ but on option, if you have a file less then 1000 lines it is fine  -->
             this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
             
             try {
+                const selectedCoin = document.getElementById('coinSelect').value;
                 const response = await fetch('/predict', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ news: newsText })
+                    body: JSON.stringify({ news: newsText, coin: selectedCoin })
                 });
                 
                 const result = await response.json();
@@ -632,33 +643,43 @@ but on option, if you have a file less then 1000 lines it is fine  -->
         function displayResult(result) {
             // Hide error
             document.getElementById('errorMessage').style.display = 'none';
-            
+
             // Show results container
             const resultsContainer = document.getElementById('analysisResults');
             resultsContainer.classList.add('results-visible');
-            
+
+            // Display the coin being analyzed
+            const coin = result.coin || 'Bitcoin';
+            const coinDisplay = document.getElementById('coinDisplay') || document.createElement('div');
+            coinDisplay.id = 'coinDisplay';
+            coinDisplay.style.cssText = 'text-align: center; color: var(--text-secondary); font-size: 12px; margin-bottom: 8px;';
+            coinDisplay.textContent = `Analyzing: ${coin}`;
+            if (!document.getElementById('coinDisplay')) {
+                resultsContainer.parentNode.insertBefore(coinDisplay, resultsContainer);
+            }
+
             // Update sentiment badge
             const sentimentBadge = document.getElementById('sentimentBadge');
             const direction = result.predicted_direction.toLowerCase();
-            
+
             if (direction === 'up') {
                 sentimentBadge.className = 'sentiment-badge sentiment-positive';
                 sentimentBadge.textContent = 'Positive Sentiment';
                 document.getElementById('impactLabel').textContent = 'High Positive Impact';
                 document.getElementById('impactFill').className = 'impact-fill impact-high-positive';
-                document.getElementById('priceMovement').textContent = 'Likely Price Increase';
+                document.getElementById('priceMovement').textContent = `${coin} Likely to Rise`;
             } else if (direction === 'down') {
                 sentimentBadge.className = 'sentiment-badge sentiment-negative';
                 sentimentBadge.textContent = 'Negative Sentiment';
                 document.getElementById('impactLabel').textContent = 'High Negative Impact';
                 document.getElementById('impactFill').className = 'impact-fill impact-high-negative';
-                document.getElementById('priceMovement').textContent = 'Likely Price Decrease';
+                document.getElementById('priceMovement').textContent = `${coin} Likely to Fall`;
             } else {
                 sentimentBadge.className = 'sentiment-badge sentiment-neutral';
                 sentimentBadge.textContent = 'Neutral Sentiment';
                 document.getElementById('impactLabel').textContent = 'Medium Impact';
                 document.getElementById('impactFill').className = 'impact-fill impact-medium';
-                document.getElementById('priceMovement').textContent = 'Price May Remain Stable';
+                document.getElementById('priceMovement').textContent = `${coin} May Remain Stable`;
             }
             
             // Update confidence value
