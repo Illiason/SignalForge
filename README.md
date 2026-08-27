@@ -11,13 +11,13 @@ AI-powered sentiment analysis for Bitcoin price prediction. Analyzes cryptocurre
 ## ✨ Features
 
 - 📰 **News Sentiment Analysis** — Real-time processing of cryptocurrency news headlines
-- 📈 **Price Direction Prediction** — Classifies Bitcoin price movements (UP/DOWN/FLAT) with confidence scores
-- 🎯 **Percentage Change Estimates** — Provides estimated percentage change ranges based on confidence levels
+- 📈 **Multi-Coin Support** — Analyze Bitcoin, Ethereum, Solana, Cardano, Polkadot, XRP (easily extensible)
+- 🎯 **Price Direction Prediction** — Classifies price movements (UP/DOWN/FLAT) with confidence scores per coin
 - 📊 **Interactive Charts** — Doughnut charts and confidence indicators for easy interpretation
 - ⚡ **Fast Model Loading** — Trained model loads in ~1 second on subsequent runs
 - 🔧 **Configurable** — Environment variables for flexible configuration
 - 🐳 **Docker Ready** — One-command deployment with Docker Compose
-- ✅ **Well-Tested** — 27 passing unit and integration tests
+- ✅ **Well-Tested** — 30 passing unit and integration tests
 
 🚀 Quick Start
 Prerequisites
@@ -64,11 +64,13 @@ Date,Price,Open,High,Low,Vol,Change %,News
 
 4. **Using the App**
    - Open browser: http://127.0.0.1:5000
-   - Enter cryptocurrency news
+   - **Select a cryptocurrency** from the dropdown (Bitcoin, Ethereum, Solana, Cardano, Polkadot, XRP)
+   - Enter cryptocurrency news or headline
    - Click "Analyze Sentiment" to get direction prediction (UP/DOWN/FLAT)
 
    Example News Input:
    > Bitcoin ETF Approval Expected This Week As SEC Deadline Approaches
+   > Ethereum Shanghai Upgrade Successfully Completes Transition to Proof-of-Stake
 
 5. **Configuration** (Optional)
    - Copy `.env.example` to `.env` and edit for custom settings
