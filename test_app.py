@@ -29,6 +29,34 @@ class TestStatusEndpoint:
         assert isinstance(data['model_trained'], bool)
 
 
+class TestCoinsEndpoint:
+    """Tests for the /coins endpoint."""
+
+    def test_coins_returns_200(self, client):
+        """Coins endpoint should return 200."""
+        response = client.get('/coins')
+        assert response.status_code == 200
+
+    def test_coins_has_required_fields(self, client):
+        """Coins response should include supported_coins and count."""
+        response = client.get('/coins')
+        data = json.loads(response.data)
+
+        assert 'supported_coins' in data
+        assert 'count' in data
+        assert isinstance(data['supported_coins'], list)
+        assert len(data['supported_coins']) == data['count']
+
+    def test_coins_list_is_correct(self, client):
+        """Coins list should have expected cryptocurrencies."""
+        response = client.get('/coins')
+        data = json.loads(response.data)
+
+        expected = {'Bitcoin', 'Ethereum', 'Solana', 'Cardano', 'Polkadot', 'XRP'}
+        assert set(data['supported_coins']) == expected
+        assert data['count'] == 6
+
+
 class TestPredictEndpoint:
     """Tests for the /predict endpoint."""
 

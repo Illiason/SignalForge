@@ -138,7 +138,16 @@ def status() -> Tuple[Dict[str, Any], int]:
     return jsonify({
         'model_trained': model_trained,
         'device': str(predictor.device)
-    })
+    }), 200
+
+@app.route('/coins')
+def coins() -> Tuple[Dict[str, Any], int]:
+    """Return list of supported cryptocurrencies."""
+    supported_coins = ['Bitcoin', 'Ethereum', 'Solana', 'Cardano', 'Polkadot', 'XRP']
+    return jsonify({
+        'supported_coins': supported_coins,
+        'count': len(supported_coins)
+    }), 200
 
 if __name__ == '__main__':
     os.makedirs('templates', exist_ok=True)
