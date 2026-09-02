@@ -102,21 +102,10 @@ def predict() -> Tuple[Dict[str, Any], int]:
                 'error': f'News text exceeds maximum length of {MAX_NEWS_LENGTH} characters'
             }), 400
 
-        # Extract optional coin parameter (default to Bitcoin for backward compatibility)
-        coin = data.get('coin', 'Bitcoin').strip()
-        SUPPORTED_COINS = {'Bitcoin', 'Ethereum', 'Solana', 'Cardano', 'Polkadot', 'XRP'}
-
-        if coin not in SUPPORTED_COINS:
-            return jsonify({
-                'success': False,
-                'error': f'Unsupported coin. Supported: {", ".join(sorted(SUPPORTED_COINS))}'
-            }), 400
-
         result = predictor.predict_with_explanation(news_text)
 
         response = {
             'success': True,
-            'coin': coin,
             'predicted_direction': result['predicted_direction'],
             'probabilities': result['probabilities'],
             'confidence': result['confidence'],
@@ -139,15 +128,6 @@ def status() -> Tuple[Dict[str, Any], int]:
     return jsonify({
         'model_trained': model_trained,
         'device': str(predictor.device)
-    }), 200
-
-@app.route('/coins')
-def coins() -> Tuple[Dict[str, Any], int]:
-    """Return list of supported cryptocurrencies."""
-    supported_coins = ['Bitcoin', 'Ethereum', 'Solana', 'Cardano', 'Polkadot', 'XRP']
-    return jsonify({
-        'supported_coins': supported_coins,
-        'count': len(supported_coins)
     }), 200
 
 if __name__ == '__main__':

@@ -29,34 +29,6 @@ class TestStatusEndpoint:
         assert isinstance(data['model_trained'], bool)
 
 
-class TestCoinsEndpoint:
-    """Tests for the /coins endpoint."""
-
-    def test_coins_returns_200(self, client):
-        """Coins endpoint should return 200."""
-        response = client.get('/coins')
-        assert response.status_code == 200
-
-    def test_coins_has_required_fields(self, client):
-        """Coins response should include supported_coins and count."""
-        response = client.get('/coins')
-        data = json.loads(response.data)
-
-        assert 'supported_coins' in data
-        assert 'count' in data
-        assert isinstance(data['supported_coins'], list)
-        assert len(data['supported_coins']) == data['count']
-
-    def test_coins_list_is_correct(self, client):
-        """Coins list should have expected cryptocurrencies."""
-        response = client.get('/coins')
-        data = json.loads(response.data)
-
-        expected = {'Bitcoin', 'Ethereum', 'Solana', 'Cardano', 'Polkadot', 'XRP'}
-        assert set(data['supported_coins']) == expected
-        assert data['count'] == 6
-
-
 class TestPredictEndpoint:
     """Tests for the /predict endpoint."""
 
@@ -121,35 +93,6 @@ class TestPredictEndpoint:
         assert response.status_code in [200, 503]
         data = json.loads(response.data)
         assert 'success' in data
-
-    def test_predict_with_coin(self, client):
-        """POST with coin parameter should accept supported coins."""
-        response = client.post('/predict',
-                              data=json.dumps({'news': 'Ethereum upgrade', 'coin': 'Ethereum'}),
-                              content_type='application/json')
-        assert response.status_code in [200, 503]
-        data = json.loads(response.data)
-        assert 'success' in data
-        if response.status_code == 200:
-            assert data['coin'] == 'Ethereum'
-
-    def test_predict_unsupported_coin(self, client):
-        """POST with unsupported coin should return 400."""
-        response = client.post('/predict',
-                              data=json.dumps({'news': 'test', 'coin': 'DogeCoin'}),
-                              content_type='application/json')
-        assert response.status_code == 400
-        data = json.loads(response.data)
-        assert 'Unsupported coin' in data['error']
-
-    def test_predict_default_coin(self, client):
-        """POST without coin parameter should default to Bitcoin."""
-        response = client.post('/predict',
-                              data=json.dumps({'news': 'Market news'}),
-                              content_type='application/json')
-        if response.status_code == 200:
-            data = json.loads(response.data)
-            assert data['coin'] == 'Bitcoin'
 
     def test_predict_at_length_limit(self, client):
         """POST with news exactly at 5000 chars should be accepted."""
