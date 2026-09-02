@@ -9,14 +9,13 @@ Transformer-powered sentiment analysis for Bitcoin price prediction. It reads cr
 
 ## Features
 
-- News sentiment analysis - processes crypto headlines in real time
-- Multi-coin support - Bitcoin, Ethereum, Solana, Cardano, Polkadot, XRP out of the box, easy to extend
-- Price direction prediction - classifies UP / DOWN / FLAT with a confidence score per coin
+- News sentiment analysis - processes Bitcoin headlines in real time
+- Price direction prediction - classifies UP / DOWN / FLAT with a confidence score
 - Interactive charts - doughnut chart and confidence bar so results are easy to read at a glance
 - Fast model loading - once trained, it loads from disk in about a second
 - Configurable through environment variables
 - Docker support, one command to deploy
-- 33 passing tests covering the model and the API
+- 27 passing tests covering the model and the API
 
 ## Quick Start
 
@@ -61,10 +60,9 @@ RETRAIN=1 python app.py
 
 `RETRAIN=true` and `RETRAIN=yes` also work. Useful after changing the dataset or tuning hyperparameters.
 
-**Using it.** Open `http://127.0.0.1:5000`, pick a coin from the dropdown, paste in a headline, and hit Analyze. A couple of headlines to try:
+**Using it.** Open `http://127.0.0.1:5000`, paste in a Bitcoin headline, and hit Analyze. An example to try:
 
 > Bitcoin ETF Approval Expected This Week As SEC Deadline Approaches
-> Ethereum Shanghai Upgrade Successfully Completes Transition to Proof-of-Stake
 
 **Configuration.** Copy `.env.example` to `.env` and adjust as needed:
 
@@ -75,7 +73,7 @@ RETRAIN=1 python app.py
 **Tests.**
 
 ```bash
-pytest test_arnn_model.py test_app.py -v   # 33 tests, model and API
+pytest test_arnn_model.py test_app.py -v   # 27 tests, model and API
 ```
 
 ## Project Structure
