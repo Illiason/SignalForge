@@ -2,174 +2,138 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![Docker Ready](https://img.shields.io/badge/docker-ready-brightgreen.svg)](./DOCKER.md)
-[![Code style](https://img.shields.io/badge/code%20style-clean-lightgrey.svg)]()
 
 # SignalForge
 
-Transformer-powered sentiment analysis for Bitcoin price prediction. Analyzes cryptocurrency news headlines to predict price movements in real-time.
+Transformer-powered sentiment analysis for Bitcoin price prediction. It reads cryptocurrency news headlines and predicts whether the price is about to go up, down, or stay flat.
 
-## ✨ Features
+## Features
 
-- 📰 **News Sentiment Analysis** — Real-time processing of cryptocurrency news headlines
-- 📈 **Multi-Coin Support** — Analyze Bitcoin, Ethereum, Solana, Cardano, Polkadot, XRP (easily extensible)
-- 🎯 **Price Direction Prediction** — Classifies price movements (UP/DOWN/FLAT) with confidence scores per coin
-- 📊 **Interactive Charts** — Doughnut charts and confidence indicators for easy interpretation
-- ⚡ **Fast Model Loading** — Trained model loads in ~1 second on subsequent runs
-- 🔧 **Configurable** — Environment variables for flexible configuration
-- 🐳 **Docker Ready** — One-command deployment with Docker Compose
-- ✅ **Well-Tested** — 30 passing unit and integration tests
+- News sentiment analysis - processes crypto headlines in real time
+- Multi-coin support - Bitcoin, Ethereum, Solana, Cardano, Polkadot, XRP out of the box, easy to extend
+- Price direction prediction - classifies UP / DOWN / FLAT with a confidence score per coin
+- Interactive charts - doughnut chart and confidence bar so results are easy to read at a glance
+- Fast model loading - once trained, it loads from disk in about a second
+- Configurable through environment variables
+- Docker support, one command to deploy
+- 33 passing tests covering the model and the API
 
-🚀 Quick Start
-Prerequisites
-Python 3.11+
+## Quick Start
 
-Installation
-Clone the repository
+### Prerequisites
 
-git clone https://github.com/yourusername/signalforge.git
-cd signalforge
-Create a virtual environment (optional but recommended)
+Python 3.11 or newer.
 
+### Installation
+
+```bash
+git clone https://github.com/Illiason/SignalForge.git
+cd SignalForge
 python -m venv venv
-# On Windows:
-venv\Scripts\activate
-
+venv\Scripts\activate   # on Windows
 pip install -r requirements.txt
-Set up your data
+```
 
-Place your crypto_dataset.csv in the project root
+### Data
 
-Or use the example dataset structure:
+Put a `crypto_dataset.csv` in the project root. It needs these columns:
 
+```csv
 Date,Price,Open,High,Low,Vol,Change %,News
 07/01/2025,105694.3,107176.4,107532.3,105289.4,40280.0,-1.38,Bitcoin news headline...
- 
-🎯 Usage
+```
 
-1. **First Run** — Model Training & Saving
-   - On first startup, the app auto-trains if no saved weights exist (2–5 min)
-   - Training checkpoints are saved to `model_weights.pth` and `label_encoder.pkl`
-   - Next run loads these instantly (~1 sec startup)
+## Usage
 
-2. **Startup** — Model Loading (Fast Path)
-   ```bash
-   python app.py  # Loads saved model in ~1 second
-   ```
+**First run - training.** If there's no saved model yet, the app trains one automatically. That takes 2-5 minutes. The result is saved to `model_weights.pth` and `label_encoder.pkl`, so it only has to happen once.
 
-3. **Force Retraining**
-   ```bash
-   RETRAIN=1 python app.py  # Ignores saved weights, trains fresh
-   ```
-   Or set `RETRAIN=true` or `RETRAIN=yes` — useful for hyperparameter tuning or new data.
+**Every run after that - fast startup.**
 
-4. **Using the App**
-   - Open browser: http://127.0.0.1:5000
-   - **Select a cryptocurrency** from the dropdown (Bitcoin, Ethereum, Solana, Cardano, Polkadot, XRP)
-   - Enter cryptocurrency news or headline
-   - Click "Analyze Sentiment" to get direction prediction (UP/DOWN/FLAT)
+```bash
+python app.py   # loads the saved model in about a second
+```
 
-   Example News Input:
-   > Bitcoin ETF Approval Expected This Week As SEC Deadline Approaches
-   > Ethereum Shanghai Upgrade Successfully Completes Transition to Proof-of-Stake
+**Forcing a retrain.**
 
-5. **Configuration** (Optional)
-   - Copy `.env.example` to `.env` and edit for custom settings
-   - `RETRAIN=1` — force retrain on startup
-   - `FLASK_DEBUG=1` — enable debug mode (dev only)
-   - `FLASK_HOST` / `FLASK_PORT` — customize server address
+```bash
+RETRAIN=1 python app.py
+```
 
-6. **Run Tests**
-   ```bash
-   pytest test_arnn_model.py test_app.py -v  # 27 tests covering model & API
-   ```
+`RETRAIN=true` and `RETRAIN=yes` also work. Useful after changing the dataset or tuning hyperparameters.
 
-🏗️ Project Structure
+**Using it.** Open `http://127.0.0.1:5000`, pick a coin from the dropdown, paste in a headline, and hit Analyze. A couple of headlines to try:
 
-signalforge/
-├── app.py                 # Flask application & API endpoints
-├── arnn_model.py          # Model architecture & training logic
-├── crypto_dataset.csv     # Training data (your crypto news dataset)
-├── model_weights.pth      # Saved model weights (auto-generated)
-├── label_encoder.pkl      # Label encoder (auto-generated)
+> Bitcoin ETF Approval Expected This Week As SEC Deadline Approaches
+> Ethereum Shanghai Upgrade Successfully Completes Transition to Proof-of-Stake
+
+**Configuration.** Copy `.env.example` to `.env` and adjust as needed:
+
+- `RETRAIN=1` - force a retrain on startup
+- `FLASK_DEBUG=1` - turn on debug mode (development only, never in production)
+- `FLASK_HOST` / `FLASK_PORT` - change where the server listens
+
+**Tests.**
+
+```bash
+pytest test_arnn_model.py test_app.py -v   # 33 tests, model and API
+```
+
+## Project Structure
+
+```
+SignalForge/
+├── app.py               Flask app and API endpoints
+├── arnn_model.py         Model architecture and training logic
+├── crypto_dataset.csv    Training data (your crypto news dataset)
+├── model_weights.pth     Saved model weights (generated after first run)
+├── label_encoder.pkl     Label encoder (generated after first run)
 ├── templates/
-│   └── index.html         # Modern web interface
-├── requirements.txt       # Python dependencies
-└── README.md             # This file
+│   └── index.html        Web interface
+├── requirements.txt      Python dependencies
+└── README.md
+```
 
-🤖 Model Architecture
-SignalForge uses a hybrid neural network architecture:
+## Model Architecture
 
-DistilBERT (Transformer) → [CLS] Token → 
-FC Layers (128→64→3) → Softmax → Prediction
-Model Components:
-Base Model: DistilBERT (distilbert-base-uncased)
+A DistilBERT transformer with a small classification head on top:
 
-Classification Head: 3 fully-connected layers
+```
+DistilBERT -> [CLS] token -> FC layers (128 -> 64 -> 3) -> Softmax -> prediction
+```
 
-Output: 3 classes (UP/DOWN/FLAT)
+- Base model: `distilbert-base-uncased`
+- Classification head: 3 fully connected layers
+- Output: 3 classes (UP / DOWN / FLAT)
+- Loss: cross-entropy
+- Early stopping after 5 epochs without improvement
 
-Training: Cross-entropy loss
+On the held-out validation split it lands around 74% accuracy, versus about 87% on training data. That gap is typical for a dataset this size and is something still being worked on. Training takes roughly 2-5 minutes on a GPU.
 
-Early Stopping: 5 epochs
+## Web Interface
 
-Performance Metrics:
-Validation Accuracy: 74.13%
+The dashboard has a news input box, a list of recent analyses, and a result panel: sentiment badge, confidence percentage, an estimated range for the price move, and a probability chart. Dark theme, responsive layout, colors map to direction - green for up, red for down, yellow for flat.
 
-Training Accuracy: 86.63%
+## Dataset Format
 
-Training Time: approx 2-5 minutes on GPU
+The training CSV needs these columns:
 
-🎨 Web Interface Features
-Main Dashboard
-News Input Panel: Paste or type cryptocurrency news
-
-Recent Analysis: History of previous predictions
-
-Real-time Results:
-
-Sentiment badges (Positive/Negative/Neutral)
-
-Confidence indicators (55-95%)
-
-Estimated percentage change ranges
-
-Interactive probability charts
-
-Visual Elements
-Dark Modern Theme: Easy on the eyes during extended use
-
-Responsive Design: Works on desktop and mobile
-
-Animated Transitions: Smooth UI interactions
-
-Color-coded Results: Green for UP, Red for DOWN, Yellow for FLAT
-
-📊 Dataset Format
-The model expects a CSV with these columns (example):
-
-File type is csv
+```csv
 Date,Price,Open,High,Low,Vol,Change %,News
 07/01/2025,105694.3,107176.4,107532.3,105289.4,40280.0,-1.38,Bitcoin pulled back after record close...
 06/30/2025,107171.1,108362.3,108777.0,106743.1,37460.0,-1.1,Highest monthly close ever...
+```
 
-Data Preprocessing:
-Price and percentage columns cleaned
+Before training: price and percentage columns are cleaned, news text is tokenized to a max of 128 tokens, labels are encoded as UP=0 / DOWN=1 / FLAT=2, and the train/validation split is stratified 80/20.
 
-News text tokenized (max 128 tokens)
+## License
 
-Labels encoded (UP=0, DOWN=1, FLAT=2)
+MIT - see the [LICENSE](./LICENSE) file.
 
-Stratified train/validation split (80/20)
+## Support
 
-📄 License
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-
-📞 Support
-
-Email: illialysennyi@gmail.com
+Questions or bugs: illialysennyi@gmail.com
 
 <div align="center">
-Made with ❤️ for the crypto community :)
-Star this repo if you found it helpful!
+Made for the crypto community.
+If this was useful to you, a star on the repo is appreciated.
 </div>
