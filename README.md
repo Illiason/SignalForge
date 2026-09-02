@@ -6,7 +6,7 @@
 
 # SignalForge
 
-AI-powered sentiment analysis for Bitcoin price prediction. Analyzes cryptocurrency news headlines to predict price movements in real-time.
+Transformer-powered sentiment analysis for Bitcoin price prediction. Analyzes cryptocurrency news headlines to predict price movements in real-time.
 
 ## ✨ Features
 
@@ -87,7 +87,7 @@ Date,Price,Open,High,Low,Vol,Change %,News
 
 signalforge/
 ├── app.py                 # Flask application & API endpoints
-├── arnn_model.py          # AI model architecture & training logic
+├── arnn_model.py          # Model architecture & training logic
 ├── crypto_dataset.csv     # Training data (your crypto news dataset)
 ├── model_weights.pth      # Saved model weights (auto-generated)
 ├── label_encoder.pkl      # Label encoder (auto-generated)
