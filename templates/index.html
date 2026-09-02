@@ -483,10 +483,7 @@ but on option, if you have a file less then 1000 lines it is fine  -->
             
             <div class="recent-analysis-list" id="recentAnalysisList">
                 <!-- Recent items will be added here dynamically -->
-                <div class="recent-item">
-                    <div class="recent-title">Bitcoin ETF Approval</div>
-                    <div class="recent-time">2 minutes ago</div>
-                </div>
+                <div class="recent-empty" style="color: var(--text-secondary); font-size: 13px; padding: 8px 0;">No analyses yet</div>
             </div>
         </div>
         
@@ -805,15 +802,13 @@ but on option, if you have a file less then 1000 lines it is fine  -->
                 list.appendChild(item);
             });
             
-            // Adds default item if list is empty
+            // Shows an honest empty state instead of fake data
             if (recentAnalyses.length === 0) {
-                const defaultItem = document.createElement('div');
-                defaultItem.className = 'recent-item';
-                defaultItem.innerHTML = `
-                    <div class="recent-title">Bitcoin ETF Approval</div>
-                    <div class="recent-time">2 minutes ago</div>
-                `;
-                list.appendChild(defaultItem);
+                const emptyState = document.createElement('div');
+                emptyState.className = 'recent-empty';
+                emptyState.style.cssText = 'color: var(--text-secondary); font-size: 13px; padding: 8px 0;';
+                emptyState.textContent = 'No analyses yet';
+                list.appendChild(emptyState);
             }
         }
         
@@ -827,20 +822,8 @@ but on option, if you have a file less then 1000 lines it is fine  -->
             }
         }
         
-        // Initializes with a sample analysis
         window.addEventListener('load', () => {
-            // Adds a sample to recent analyses
-            recentAnalyses.push({
-                title: 'Bitcoin ETF Approval',
-                fullText: 'Bitcoin ETF Approval Expected This Week As SEC Deadline Approaches',
-                time: '2 minutes ago'
-            });
-
             updateRecentAnalysesList();
-
-            // Adds sample text to input
-            document.getElementById('newsInput').value =
-                'Bitcoin ETF Approval Expected This Week As SEC Deadline Approaches';
         });
     </script>
 </body>
