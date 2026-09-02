@@ -127,9 +127,10 @@ def predict() -> Tuple[Dict[str, Any], int]:
         return jsonify(response), 200
 
     except Exception as e:
+        logger.exception("Unhandled error in /predict")
         return jsonify({
             'success': False,
-            'error': str(e)
+            'error': 'Internal server error'
         }), 500
 
 @app.route('/status')
@@ -151,8 +152,11 @@ def coins() -> Tuple[Dict[str, Any], int]:
 
 if __name__ == '__main__':
     os.makedirs('templates', exist_ok=True)
-    print("Starting Flask server...")
-    app.run(debug=True, port=5000, host='0.0.0.0')
+    debug_mode = os.getenv('FLASK_DEBUG', '0').lower() in ('1', 'true', 'yes')
+    host = os.getenv('FLASK_HOST', '0.0.0.0')
+    port = int(os.getenv('FLASK_PORT', '5000'))
+    logger.info(f"Starting Flask server on {host}:{port} (debug={debug_mode})")
+    app.run(debug=debug_mode, port=port, host=host)
 
 if torch.cuda.is_available():
     print(f"GPU: {torch.cuda.get_device_name(0)}")
