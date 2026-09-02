@@ -456,12 +456,7 @@ but on option, if you have a file less then 1000 lines it is fine  -->
             
             <div class="section-title">Select Cryptocurrency</div>
             <select id="coinSelect" style="width: 100%; padding: 10px; margin-bottom: 16px; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-primary); font-size: 14px;">
-                <option value="Bitcoin">Bitcoin</option>
-                <option value="Ethereum">Ethereum</option>
-                <option value="Solana">Solana</option>
-                <option value="Cardano">Cardano</option>
-                <option value="Polkadot">Polkadot</option>
-                <option value="XRP">XRP</option>
+                <option value="">Loading coins...</option>
             </select>
 
             <div class="section-title">News Input</div>
@@ -849,18 +844,40 @@ but on option, if you have a file less then 1000 lines it is fine  -->
         }
         
         // Initializes with a sample analysis
+        async function loadCoins() {
+            try {
+                const response = await fetch('/coins');
+                const data = await response.json();
+                const coinSelect = document.getElementById('coinSelect');
+                coinSelect.innerHTML = '';  // Clear loading option
+                data.supported_coins.forEach(coin => {
+                    const option = document.createElement('option');
+                    option.value = coin;
+                    option.textContent = coin;
+                    if (coin === 'Bitcoin') option.selected = true;
+                    coinSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading coins:', error);
+                // Fallback: keep the loading text visible
+            }
+        }
+
         window.addEventListener('load', () => {
+            // Load available coins dynamically
+            loadCoins();
+
             // Adds a sample to recent analyses
             recentAnalyses.push({
                 title: 'Bitcoin ETF Approval',
                 fullText: 'Bitcoin ETF Approval Expected This Week As SEC Deadline Approaches',
                 time: '2 minutes ago'
             });
-            
+
             updateRecentAnalysesList();
-            
+
             // Adds sample text to input
-            document.getElementById('newsInput').value = 
+            document.getElementById('newsInput').value =
                 'Bitcoin ETF Approval Expected This Week As SEC Deadline Approaches';
         });
     </script>
